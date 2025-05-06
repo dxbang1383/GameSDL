@@ -249,7 +249,7 @@ int main(int argc, char* argv[]) {
                     // Nếu đạn chạm player2
                     if (checkCollision(bRect, player2.hitbox)) {
                         if (player2.directionR == 1) {
-                            std::cout << "Player 2 tử vong!" << std::endl;
+                            std::cout << "Playerng!" << std::endl;
                             player2.pos.x = -1000;
                             b.active = false;
                         }
@@ -306,3 +306,4 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
     return 0;
 }
+//kjhfljkshjkldfhfljhjdkjhgjkfdhg
