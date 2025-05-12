@@ -6,13 +6,15 @@
     #include <vector>
     #include <iostream>
     #include <SDL_ttf.h>
+    #include<string>
+    #include <random> 
 
     enum GameState {
         MAIN_MENU,
         OPTIONS,
         PLAYING,
         PAUSED,
-        EXIT, PLAYING2, PLAYING1, PLAYING3
+        EXIT, PLAYING2, PLAYING1, PLAYING3, PLAYING4,PLAYING3_end
     };
     struct Vector2 {
         float x, y;
@@ -25,6 +27,15 @@
             return { (int)pos.x, (int)pos.y, 10, 5 };
         }
     };// thông số đạn 
+    struct BulletB {
+        Vector2 pos;
+        float speedX, speedY;
+        bool active;
+
+        SDL_Rect getRect() const {
+            return { (int)pos.x, (int)pos.y, 5, 5 };
+        }
+    };
     bool checkCollision(const SDL_Rect& a, const SDL_Rect& b);
     struct Entity {
         Vector2 pos;// vị trí trên màn 
@@ -36,6 +47,8 @@
         void update2(float deltaTime, const std::vector<SDL_Rect>& platforms);
         void jump();// nhảy (nếu trên mặt đất )
     };// vạt thể khả dụng j
+
+
     bool checkCollisionFloat(SDL_FRect a, SDL_FRect b);
 
     #endif

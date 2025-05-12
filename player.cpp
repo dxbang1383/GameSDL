@@ -7,7 +7,7 @@ void player1_shot(SDL_Event& event, Entity& player, std::vector<Bullet>& bullets
             bullets.push_back({ {player.pos.x + 32, player.pos.y + 16}, 500, true }); // tạo đạn 
         }
         if (event.key.keysym.sym == SDLK_SPACE && player.directionR == 0) {
-            bullets.push_back({ {player.pos.x - 5  , player.pos.y + 16}, -500, true }); // tạo đạn 
+            bullets.push_back({ {player.pos.x - 10  , player.pos.y + 16}, -500, true }); // tạo đạn 
         }
 
     }
@@ -44,7 +44,7 @@ void player2_shot(SDL_Event& event, Entity& player, std::vector<Bullet>& bullets
             bullets.push_back({ {player.pos.x + 32, player.pos.y + 16}, 500, true }); // tạo đạn 
         }
         else if (event.key.keysym.sym == SDLK_RETURN && player.directionR == 0) {
-            bullets.push_back({ {player.pos.x - 5, player.pos.y + 16}, -500, true }); // tạo đạn 
+            bullets.push_back({ {player.pos.x - 10, player.pos.y + 16}, -500, true }); // tạo đạn 
         }
     }
 }
@@ -74,6 +74,7 @@ void player_2_input(SDL_Event& event, Entity& player, std::vector <Bullet>& bull
     player2_input2(player);
     player2_shot(event, player, bullets);
 }
+
 void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& bullets) {
 
     for (auto& b : bullets) {
@@ -136,3 +137,8 @@ void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& b
         }
     }
 }
+
+
+
+
+

@@ -1,5 +1,5 @@
 ﻿#include "game.h"
-
+#include "player.h"
 void Entity::update(float deltaTime) {
     vel.y += 500 * deltaTime;// trọng lực 
     pos.x += vel.x * deltaTime;// cập nhật x , y 
@@ -93,4 +93,5 @@ bool checkCollisionFloat(SDL_FRect a, SDL_FRect b) {
     return !(a.x + a.w <= b.x || a.x >= b.x + b.w ||
         a.y + a.h <= b.y || a.y >= b.y + b.h);
 }
+
 
