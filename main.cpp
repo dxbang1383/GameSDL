@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
     SDL_Window* window = SDL_CreateWindow("SDL2 Game ", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     
-    BossSniper boss(300, 100);
+    BossSniper boss(300, 300);
     GameState state = MAIN_MENU;// mặc định ở main menu
     bool running = true;
     SDL_Event event;
@@ -18,23 +18,30 @@ int main(int argc, char* argv[]) {
     {300, 350, 150, 20},    
     {500, 280, 150, 20},    
     {200, 210, 150, 20},    
-    {400, 140, 120, 20},    
+    {400, 140, 150, 20},    
     };
-
+    SDL_Texture* platformTexture = IMG_LoadTexture(renderer, "img/platforms.png");
+    if (!platformTexture) {
+        std::cerr << "Failed to load platform texture: " << IMG_GetError() << std::endl;
+        // Xử lý lỗi nếu cần
+    }
     Entity player = { {700, 100}, {0, 0}, {100, 100, 32, 32}, false , true };
     Entity player2 = { {100, 100}, {0, 0}, {100, 100, 32, 32}, false , false };
     std::vector<Bullet> bullets;
     std::vector<Entity> enemies = { { {600, 400}, {0, 0}, {600, 400, 32, 32}, true , true} };
 
     Uint32 lastTick = SDL_GetTicks();// lay tg luc bat dau chuong trinh 
-    TTF_Font* font = TTF_OpenFont("PixelifySans-VariableFont_wght.ttf", 32);  
+    TTF_Font* font = TTF_OpenFont("PixelifySans-VariableFont_wght.ttf", 24);  
 
     int frameCount = 0;
     float fpsTimer = 0.0f;
     int currentFPS = 0;
 
     int count = 0;
+    int countDie = 0;
 
+    int count1 = 0;
+    int count2 = 0;
     if (!font) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return -1;
@@ -97,18 +104,18 @@ int main(int argc, char* argv[]) {
                         state = MAIN_MENU;
                         player = { {700, 100}, {0, 0}, {100, 100, 32, 32}, false , true };
                     }
+                    if (event.key.keysym.sym == SDLK_p) {
+                        state = PAUSED;
+                    }
                }
                 player_1_input(event, player, bullets);
             }
-
             else if (state == PAUSED) {
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
                     state = PLAYING;
                 }
-            }
-            
+            }          
         }// while event
-
         //update vi tri 
         if (state == PLAYING1) {
             player.update(deltaTime);// cập nhật vị trí hiện tại của player 
@@ -191,6 +198,12 @@ int main(int argc, char* argv[]) {
                     b.active = false;
                     player.pos.x = 0;
                     player.pos.y = 0;
+                    countDie = countDie + 1;
+                    if (countDie == 3) {
+                        state = MAIN_MENU;
+                        countDie = 0;
+                        count = 0;
+                    }
                 }
             }
         }
@@ -283,16 +296,20 @@ int main(int argc, char* argv[]) {
                 if (!b.active) continue;
 
                 SDL_Rect bRect = b.getRect();
-                check_renderBullet(player, player2, bullets);
+                check_renderBullet(player, player2, bullets,count1 , count2);
                 // cơ chế khiên và tử vong ;
                 
             }
 
         }
         else if (state == PLAYING3 || state == PAUSED) {
-            SDL_SetRenderDrawColor(renderer, 150, 75, 0, 255); // Màu nâu
+            // Đặt màu nền là trắng (R=255, G=255, B=255, A=255)
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+            // Xóa màn hình bằng màu vừa đặt (trắng)
+            SDL_RenderClear(renderer);
             for (const auto& plat : platforms) {
-                SDL_RenderFillRect(renderer, &plat);
+                SDL_RenderCopy(renderer, platformTexture, nullptr, &plat);
             }
 
             SDL_SetRenderDrawColor(renderer, 255, 0 , 0, 255);
@@ -317,14 +334,53 @@ int main(int argc, char* argv[]) {
                 
                 // cơ chế khiên và tử vong ;
                
-            }check_renderBullet(player, player2, bullets);
+            }
+            check_renderBullet(player, player2, bullets,count1 , count2);
+            SDL_Color textColor = { 0, 0, 0 }; // Màu chữ: trắng
 
+            // Tạo chuỗi hiển thị
+            std::string fpsText = "FPS: " + std::to_string(currentFPS);
+            std::string pointText1 = "POINT 1: " + std::to_string(count1);
+            std::string pointText2 = "POINT 2: " + std::to_string(count2);
+
+            // Tạo surface từ chuỗi văn bản
+            SDL_Surface* fpsSurface = TTF_RenderText_Solid(font, fpsText.c_str(), textColor);
+            SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
+            SDL_Rect fpsRect = { 10, 10, fpsSurface->w, fpsSurface->h }; // Vị trí hiển thị FPS
+
+            SDL_Surface* pointSurface1 = TTF_RenderText_Solid(font, pointText1.c_str(), textColor);
+            SDL_Texture* pointTexture1 = SDL_CreateTextureFromSurface(renderer, pointSurface1);
+            SDL_Rect pointRect1 = { 10, 10 + fpsRect.h + 5, pointSurface1->w, pointSurface1->h }; // Hiển thị dưới FPS
+
+            SDL_Surface* pointSurface2 = TTF_RenderText_Solid(font, pointText2.c_str(), textColor);
+            SDL_Texture* pointTexture2 = SDL_CreateTextureFromSurface(renderer, pointSurface2);
+            SDL_Rect pointRect2 = { 10, pointRect1.y + pointRect1.h + 5, pointSurface2->w, pointSurface2->h };
+
+            // Vẽ lên màn hình
+            SDL_RenderCopy(renderer, fpsTexture, NULL, &fpsRect);
+            SDL_RenderCopy(renderer, pointTexture1, NULL, &pointRect1);
+            SDL_RenderCopy(renderer, pointTexture2, NULL, &pointRect2);
+
+            // Giải phóng bộ nhớ
+            SDL_FreeSurface(fpsSurface);
+            SDL_DestroyTexture(fpsTexture);
+            SDL_FreeSurface(pointSurface1);
+            SDL_DestroyTexture(pointTexture1);
+            SDL_FreeSurface(pointSurface2);
+            SDL_DestroyTexture(pointTexture2);
 
         }
         else if (state == PLAYING4 || state == PAUSED) {
             // render nền và platform
-            SDL_SetRenderDrawColor(renderer, 150, 75, 0, 255);
-            for (const auto& plat : platforms) SDL_RenderFillRect(renderer, &plat);
+            // 
+            // Đặt màu nền là trắng (R=255, G=255, B=255, A=255)
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+            // Xóa màn hình bằng màu vừa đặt (trắng)
+            SDL_RenderClear(renderer);
+            for (const auto& plat : platforms) {
+                SDL_RenderCopy(renderer, platformTexture, nullptr, &plat);
+            }
 
             // render player
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -334,7 +390,7 @@ int main(int argc, char* argv[]) {
             // render bullet của player
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             for (const auto& b : bullets) {
-                std::string pointText = "POINT: " + std::to_string(count);
+                
                 if (b.active) {
                     SDL_Rect bulletRect = b.getRect();
                     SDL_RenderFillRect(renderer, &bulletRect);
@@ -354,8 +410,7 @@ int main(int argc, char* argv[]) {
             }
             // render boss sniper
             boss.draw(renderer);
-            }
-            SDL_Color fpsColor = { 255, 255, 255 };
+            SDL_Color fpsColor = { 0, 0, 0 };
 
             std::string fpsText = "FPS: " + std::to_string(currentFPS);
             std::string pointText = "POINT: " + std::to_string(count);
@@ -370,11 +425,11 @@ int main(int argc, char* argv[]) {
 
             SDL_RenderCopy(renderer, fpsTexture, NULL, &fpsRect);
             SDL_RenderCopy(renderer, pointTexture, NULL, &pointRect);
-
             SDL_FreeSurface(fpsSurface);
             SDL_DestroyTexture(fpsTexture);
             SDL_FreeSurface(pointSurface);
             SDL_DestroyTexture(pointTexture);
+            }
 
         SDL_RenderPresent(renderer);
         SDL_Delay(10);

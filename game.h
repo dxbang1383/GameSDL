@@ -6,7 +6,7 @@
     #include <vector>
     #include <iostream>
     #include <SDL_ttf.h>
-    #include<string>
+    #include <string>
     #include <random> 
 
     enum GameState {

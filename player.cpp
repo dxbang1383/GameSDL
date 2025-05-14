@@ -75,7 +75,7 @@ void player_2_input(SDL_Event& event, Entity& player, std::vector <Bullet>& bull
     player2_shot(event, player, bullets);
 }
 
-void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& bullets) {
+void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& bullets, int& c1 , int &c2) {
 
     for (auto& b : bullets) {
         if (!b.active) continue;
@@ -93,6 +93,7 @@ void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& b
                 else if (player.directionR == 0) {
                     b.active = 0;
                     std::cout << "Player 1 tu vong" << std::endl;
+                    c2 = c2 + 1;
                     player.pos.x = -1000;
 
                 }
@@ -101,6 +102,7 @@ void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& b
             if (checkCollision(bRect, player2.hitbox)) {
                 if (player2.directionR == 0) {
                     std::cout << "Player 2 tử vong!" << std::endl;
+                    c1 = c1 + 1;
                     player2.pos.x = -1000;
                     b.active = false;
                 }
@@ -119,6 +121,7 @@ void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& b
                 else if (player.directionR == 1) {
                     b.active = 0;
                     std::cout << "Player 1 tu vong" << std::endl;
+                    c2 = c2 + 1;
                     player.pos.x = -1000;
 
                 }
@@ -127,6 +130,7 @@ void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& b
             if (checkCollision(bRect, player2.hitbox)) {
                 if (player2.directionR == 1) {
                     std::cout << "Player 2 tử vong!" << std::endl;
+                    c1 = c1 + 1;
                     player2.pos.x = -1000;
                     b.active = false;
                 }
