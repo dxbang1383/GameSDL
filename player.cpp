@@ -94,16 +94,16 @@ void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& b
                     b.active = 0;
                     std::cout << "Player 1 tu vong" << std::endl;
                     c2 = c2 + 1;
-                    player.pos.x = -1000;
+                    player.pos.y = 0;
 
                 }
             }
             // Nếu đạn chạm player2
             if (checkCollision(bRect, player2.hitbox)) {
                 if (player2.directionR == 0) {
-                    std::cout << "Player 2 tử vong!" << std::endl;
+                    std::cout << "Player 2 tu vong!" << std::endl;
                     c1 = c1 + 1;
-                    player2.pos.x = -1000;
+                    player2.pos.y = 0;
                     b.active = false;
                 }
                 else if (player2.directionR == 1) {
@@ -122,16 +122,16 @@ void check_renderBullet(Entity& player, Entity& player2, std::vector <Bullet>& b
                     b.active = 0;
                     std::cout << "Player 1 tu vong" << std::endl;
                     c2 = c2 + 1;
-                    player.pos.x = -1000;
+                    player.pos.y =0;
 
                 }
             }
             // Nếu đạn chạm player2
             if (checkCollision(bRect, player2.hitbox)) {
                 if (player2.directionR == 1) {
-                    std::cout << "Player 2 tử vong!" << std::endl;
+                    std::cout << "Player 2 tu vong!" << std::endl;
                     c1 = c1 + 1;
-                    player2.pos.x = -1000;
+                    player2.pos.y = 0;
                     b.active = false;
                 }
                 else if (player2.directionR == 0) {

@@ -1,28 +1,35 @@
 ﻿#include "game.h"
 #include "player.h"
-void Entity::update(float deltaTime) {
-    vel.y += 500 * deltaTime;// trọng lực 
-    pos.x += vel.x * deltaTime;// cập nhật x , y 
-    pos.y += vel.y * deltaTime;
-    // kiểm tra rơi xuống mặt đất
-    if (pos.y > 400) {
-        //neu roi qua thi tro lai mat dat
-        pos.y = 400;
-        vel.y = 0;
-        onGround = true;
-    }
+void Entity::renderEntity(SDL_Renderer* renderer) {
 
+    SDL_Rect backRect;
+    if (directionR) {
+        backRect = { hitbox.x - 5, hitbox.y, 5, hitbox.h };
+    }
     else {
-        onGround = false;
-    }if (pos.x < 0) {
-        pos.x = 0;
+        backRect = { hitbox.x + hitbox.w, hitbox.y, 5,hitbox.h };
     }
-    if (pos.x > 800 - 32) {
-        pos.x = 800 - 32;
-    }
-    // cập nhật hình chữ nhật va chạm 
-    hitbox = { (int)pos.x, (int)pos.y, 32, 32 };
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &backRect);
+
+    SDL_SetRenderDrawColor(renderer, 0, 255 , 0, 255);
+    SDL_RenderFillRect(renderer,& hitbox );
 }
+void Entity::renderEntity2(SDL_Renderer* renderer) {
+    SDL_Rect backRect;
+    if (directionR) {
+        backRect = { hitbox.x - 5, hitbox.y, 5, hitbox.h };
+    }
+    else {
+        backRect = { hitbox.x + hitbox.w, hitbox.y, 5,hitbox.h };
+    }
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &backRect);
+
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &hitbox);
+}
+
 void Entity::update2(float deltaTime, const std::vector<SDL_Rect>& platforms) {
     //tao toc do roi
     vel.y += 500 * deltaTime;
@@ -86,12 +93,8 @@ void Entity::jump() {
 }
 
 bool checkCollision(const SDL_Rect& a, const SDL_Rect& b) {
-    // kiểm tra va chạm giữa 2 hcn 
     return SDL_HasIntersection(&a, &b);
 }
-bool checkCollisionFloat(SDL_FRect a, SDL_FRect b) {
-    return !(a.x + a.w <= b.x || a.x >= b.x + b.w ||
-        a.y + a.h <= b.y || a.y >= b.y + b.h);
-}
+
 
 

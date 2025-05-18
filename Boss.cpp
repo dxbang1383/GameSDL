@@ -9,12 +9,9 @@ BossSniper::BossSniper(float x, float y) {
 }
 
 void BossSniper::update(float deltaTime, const Entity& player) {
-    // Hướng nhìn về phía người chơi
     direction = (player.pos.x < pos.x) ? -1 : 1;
     //them cd cho dan cua boss
     if (SDL_GetTicks() - shootCooldown > 2000) {
-
-        // Tính toán vector hướng đến người chơi
         float dx = player.pos.x + player.hitbox.w / 2 - (pos.x + 16);
         float dy = player.pos.y + player.hitbox.h / 2 - (pos.y + 16);
         float length = std::sqrt(dx * dx + dy * dy);
@@ -49,7 +46,6 @@ void BossSniper::update(float deltaTime, const Entity& player) {
 
     hitbox = { (int)pos.x, (int)pos.y, 32, 32 };
 }
-
 void BossSniper::draw(SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 200, 255, 200, 255);
     SDL_RenderFillRect(renderer, &hitbox);

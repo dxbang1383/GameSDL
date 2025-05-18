@@ -21,17 +21,14 @@ int main(int argc, char* argv[]) {
     {400, 140, 150, 20},    
     };
     SDL_Texture* platformTexture = IMG_LoadTexture(renderer, "img/platforms.png");
-    if (!platformTexture) {
-        std::cerr << "Failed to load platform texture: " << IMG_GetError() << std::endl;
-        // Xử lý lỗi nếu cần
-    }
+    
     Entity player = { {700, 100}, {0, 0}, {100, 100, 32, 32}, false , true };
     Entity player2 = { {100, 100}, {0, 0}, {100, 100, 32, 32}, false , false };
     std::vector<Bullet> bullets;
     std::vector<Entity> enemies = { { {600, 400}, {0, 0}, {600, 400, 32, 32}, true , true} };
 
     Uint32 lastTick = SDL_GetTicks();// lay tg luc bat dau chuong trinh 
-    TTF_Font* font = TTF_OpenFont("PixelifySans-VariableFont_wght.ttf", 24);  
+    TTF_Font* font = TTF_OpenFont("Roboto-Black.ttf", 24);  
 
     int frameCount = 0;
     float fpsTimer = 0.0f;
@@ -59,8 +56,7 @@ int main(int argc, char* argv[]) {
         }
 
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) running = false;// thoát
-
+            if (event.type == SDL_QUIT) running = false;    
             if (state == MAIN_MENU) {
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
                     state = PLAYING;
@@ -68,24 +64,10 @@ int main(int argc, char* argv[]) {
             }
             else if (state == PLAYING) {
                 if (event.type == SDL_KEYDOWN) {
-                    if (event.key.keysym.sym == SDLK_1) state = PLAYING1;
-                    if (event.key.keysym.sym == SDLK_2) state = PLAYING2;
+
                     if (event.key.keysym.sym == SDLK_3) state = PLAYING3;
                     if (event.key.keysym.sym == SDLK_4) state = PLAYING4;
                 }
-            }
-            else if (state == PLAYING1) {
-                player_1_input(event, player, bullets);
-                if (event.type == SDL_KEYDOWN) {
-                    if (event.key.keysym.sym == SDLK_ESCAPE)state = MAIN_MENU;
-                }
-            }
-            else if (state == PLAYING2) {
-                if (event.type == SDL_KEYDOWN) {
-                    if (event.key.keysym.sym == SDLK_ESCAPE)state = MAIN_MENU;
-                }
-                player_1_input(event, player, bullets);
-                player_2_input(event, player2, bullets);
             }
             else if (state == PLAYING3) {
                 if (event.type == SDL_KEYDOWN) {
@@ -117,50 +99,7 @@ int main(int argc, char* argv[]) {
             }          
         }// while event
         //update vi tri 
-        if (state == PLAYING1) {
-            player.update(deltaTime);// cập nhật vị trí hiện tại của player 
 
-            for (auto& b : bullets) {
-                if (b.active) b.pos.x += b.speed * deltaTime;
-                if (b.pos.x > 800) b.active = false;
-            }
-            // Check bullet-enemy collision
-            for (auto& enemy : enemies) {
-                for (auto& b : bullets) {
-                    if (b.active && checkCollision(enemy.hitbox, b.getRect())) {
-                        b.active = false;
-                        enemy.pos.x = -1000; // Move offscreen as simple 'destroy'
-                    }
-                }
-            }
-
-            for (auto& enemy : enemies) {
-                enemy.hitbox = { (int)enemy.pos.x, (int)enemy.pos.y, 32, 32 };
-            }
-        }
-        if (state == PLAYING2) {
-            player.update(deltaTime);
-            player2.update(deltaTime);
-            for (auto& b : bullets) {
-                if (b.active) b.pos.x += b.speed * deltaTime;
-                if (b.pos.x > 800) b.active = false;
-                if (b.pos.x < 0) b.active = false;
-            }
-            // Check bullet-enemy collision
-            for (auto& enemy : enemies) {
-                for (auto& b : bullets) {
-                    if (b.active && checkCollision(enemy.hitbox, b.getRect())) {
-                        b.active = false;
-                        enemy.pos.x = -1000; // Move offscreen as simple 'destroy'
-                    }
-                }
-            }
-
-            for (auto& enemy : enemies) {
-                enemy.hitbox = { (int)enemy.pos.x, (int)enemy.pos.y, 32, 32 };
-            }
-
-        }
         if (state == PLAYING3) {
             player.update2(deltaTime, platforms);
             player2.update2(deltaTime, platforms);
@@ -169,20 +108,6 @@ int main(int argc, char* argv[]) {
                 if (b.pos.x > 800) b.active = false;
                 if (b.pos.x < 0) b.active = false;
             }
-            
-            for (auto& enemy : enemies) {
-                for (auto& b : bullets) {
-                    if (b.active && checkCollision(enemy.hitbox, b.getRect())) {
-                        b.active = false;
-                        enemy.pos.x = -1000;
-                    }
-                }
-            }
-
-            for (auto& enemy : enemies) {
-                enemy.hitbox = { (int)enemy.pos.x, (int)enemy.pos.y, 32, 32 };
-            }
-
         }
         if (state == PLAYING4) {
             player.update2(deltaTime, platforms);
@@ -253,72 +178,16 @@ int main(int argc, char* argv[]) {
             SDL_DestroyTexture(textTexture2);
 
         }
-        else if (state == PLAYING1 || state == PAUSED) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_Rect playerRect = { (int)player.pos.x, (int)player.pos.y, 32, 32 };
-            SDL_RenderFillRect(renderer, &playerRect);
-
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            for (const auto& b : bullets) {
-                if (b.active) {
-                    SDL_Rect bulletRect = b.getRect();
-                    SDL_RenderFillRect(renderer, &bulletRect);
-                }
-            }
-
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            for (const auto& enemy : enemies) {
-                SDL_RenderFillRect(renderer, &enemy.hitbox);
-            }
-        }
-        else if (state == PLAYING2 || state == PAUSED) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_Rect playerRect = { (int)player.pos.x, (int)player.pos.y, 32, 32 };
-            SDL_Rect playerRect2 = { (int)player2.pos.x, (int)player2.pos.y, 32, 32 };
-
-            SDL_RenderFillRect(renderer, &playerRect);
-            SDL_RenderFillRect(renderer, &playerRect2);
-
-            //render bullet
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            for (const auto& b : bullets) {
-                if (b.active) {
-                    SDL_Rect bulletRect = b.getRect();
-                    SDL_RenderFillRect(renderer, &bulletRect);
-                }
-            }
-            // render enemy
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            for (const auto& enemy : enemies) {
-                SDL_RenderFillRect(renderer, &enemy.hitbox);
-            }
-            for (auto& b : bullets) {
-                if (!b.active) continue;
-
-                SDL_Rect bRect = b.getRect();
-                check_renderBullet(player, player2, bullets,count1 , count2);
-                // cơ chế khiên và tử vong ;
-                
-            }
-
-        }
         else if (state == PLAYING3 || state == PAUSED) {
-            // Đặt màu nền là trắng (R=255, G=255, B=255, A=255)
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-            // Xóa màn hình bằng màu vừa đặt (trắng)
             SDL_RenderClear(renderer);
+
             for (const auto& plat : platforms) {
                 SDL_RenderCopy(renderer, platformTexture, nullptr, &plat);
             }
 
-            SDL_SetRenderDrawColor(renderer, 255, 0 , 0, 255);
-            SDL_Rect playerRect = { (int)player.pos.x, (int)player.pos.y, 32, 32 };
-            
-            SDL_RenderFillRect(renderer, &playerRect);
-            SDL_SetRenderDrawColor(renderer, 0 , 255, 0, 255);
-            SDL_Rect playerRect2 = { (int)player2.pos.x, (int)player2.pos.y, 32, 32 };
-            SDL_RenderFillRect(renderer, &playerRect2);
+            player.renderEntity(renderer);
+            player2.renderEntity2(renderer);
 
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             for (const auto& b : bullets) {
@@ -329,39 +198,32 @@ int main(int argc, char* argv[]) {
             }
             for (auto& b : bullets) {
                 if (!b.active) continue;
-
                 SDL_Rect bRect = b.getRect();
-                
-                // cơ chế khiên và tử vong ;
-               
             }
+            // cơ chế khiên và tử vong ;
             check_renderBullet(player, player2, bullets,count1 , count2);
-            SDL_Color textColor = { 0, 0, 0 }; // Màu chữ: trắng
+            SDL_Color textColor = { 0, 0, 0 };
 
-            // Tạo chuỗi hiển thị
             std::string fpsText = "FPS: " + std::to_string(currentFPS);
             std::string pointText1 = "POINT 1: " + std::to_string(count1);
             std::string pointText2 = "POINT 2: " + std::to_string(count2);
 
-            // Tạo surface từ chuỗi văn bản
             SDL_Surface* fpsSurface = TTF_RenderText_Solid(font, fpsText.c_str(), textColor);
             SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
-            SDL_Rect fpsRect = { 10, 10, fpsSurface->w, fpsSurface->h }; // Vị trí hiển thị FPS
+            SDL_Rect fpsRect = { 10, 10, fpsSurface->w, fpsSurface->h };
 
             SDL_Surface* pointSurface1 = TTF_RenderText_Solid(font, pointText1.c_str(), textColor);
             SDL_Texture* pointTexture1 = SDL_CreateTextureFromSurface(renderer, pointSurface1);
-            SDL_Rect pointRect1 = { 10, 10 + fpsRect.h + 5, pointSurface1->w, pointSurface1->h }; // Hiển thị dưới FPS
+            SDL_Rect pointRect1 = { 10, 10 + fpsRect.h + 5, pointSurface1->w, pointSurface1->h };
 
             SDL_Surface* pointSurface2 = TTF_RenderText_Solid(font, pointText2.c_str(), textColor);
             SDL_Texture* pointTexture2 = SDL_CreateTextureFromSurface(renderer, pointSurface2);
             SDL_Rect pointRect2 = { 10, pointRect1.y + pointRect1.h + 5, pointSurface2->w, pointSurface2->h };
 
-            // Vẽ lên màn hình
             SDL_RenderCopy(renderer, fpsTexture, NULL, &fpsRect);
             SDL_RenderCopy(renderer, pointTexture1, NULL, &pointRect1);
             SDL_RenderCopy(renderer, pointTexture2, NULL, &pointRect2);
 
-            // Giải phóng bộ nhớ
             SDL_FreeSurface(fpsSurface);
             SDL_DestroyTexture(fpsTexture);
             SDL_FreeSurface(pointSurface1);
@@ -371,26 +233,18 @@ int main(int argc, char* argv[]) {
 
         }
         else if (state == PLAYING4 || state == PAUSED) {
-            // render nền và platform
-            // 
-            // Đặt màu nền là trắng (R=255, G=255, B=255, A=255)
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-            // Xóa màn hình bằng màu vừa đặt (trắng)
             SDL_RenderClear(renderer);
             for (const auto& plat : platforms) {
                 SDL_RenderCopy(renderer, platformTexture, nullptr, &plat);
             }
 
-            // render player
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             SDL_Rect playerRect = { (int)player.pos.x, (int)player.pos.y, 32, 32 };
             SDL_RenderFillRect(renderer, &playerRect);
 
-            // render bullet của player
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             for (const auto& b : bullets) {
-                
                 if (b.active) {
                     SDL_Rect bulletRect = b.getRect();
                     SDL_RenderFillRect(renderer, &bulletRect);
@@ -414,6 +268,7 @@ int main(int argc, char* argv[]) {
 
             std::string fpsText = "FPS: " + std::to_string(currentFPS);
             std::string pointText = "POINT: " + std::to_string(count);
+            std::string healthText = "HEALTH: " + std::to_string(3-countDie);
 
             SDL_Surface* fpsSurface = TTF_RenderText_Solid(font, fpsText.c_str(), fpsColor);
             SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
@@ -421,14 +276,23 @@ int main(int argc, char* argv[]) {
 
             SDL_Surface* pointSurface = TTF_RenderText_Solid(font, pointText.c_str(), fpsColor);
             SDL_Texture* pointTexture = SDL_CreateTextureFromSurface(renderer, pointSurface);
-            SDL_Rect pointRect = { 10, 10 + fpsSurface->h + 5, pointSurface->w, pointSurface->h };
+            SDL_Rect pointRect = { 10, fpsRect.y + fpsRect.h + 5, pointSurface->w, pointSurface->h };
+
+            SDL_Surface* healthSurface = TTF_RenderText_Solid(font, healthText.c_str(), fpsColor);
+            SDL_Texture* healthTexture = SDL_CreateTextureFromSurface(renderer, healthSurface);
+            SDL_Rect healthRect = { 10, pointRect.y + pointRect.h + 5, healthSurface->w, healthSurface->h };
 
             SDL_RenderCopy(renderer, fpsTexture, NULL, &fpsRect);
             SDL_RenderCopy(renderer, pointTexture, NULL, &pointRect);
+            SDL_RenderCopy(renderer, healthTexture, NULL, &healthRect);
+
             SDL_FreeSurface(fpsSurface);
             SDL_DestroyTexture(fpsTexture);
             SDL_FreeSurface(pointSurface);
             SDL_DestroyTexture(pointTexture);
+            SDL_FreeSurface(healthSurface);
+            SDL_DestroyTexture(healthTexture);
+
             }
 
         SDL_RenderPresent(renderer);
